@@ -1,0 +1,33 @@
+version: '3.4'
+
+networks:
+  eventa:
+
+services:
+  demoappdb:
+    container_name: app-db
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+        - 8002:1433
+    environment:
+        - ACCEPT_EULA=Y
+        - SA_PASSWORD=password@12345#
+    networks:
+        - eventa
+
+  eventa:
+    container_name: eventa
+    image: ${DOCKER_REGISTRY-}eventa
+    build:
+      context: .
+      dockerfile: Eventa/Dockerfile
+    ports:
+        - 8001:80
+    depends_on:
+        - demoappdb
+    environment:
+        - DB_HOST=demoappdb
+        - DB_NAME=Eventa
+        - DB_SA_PASSWORD=password@12345#
+    networks:
+        - eventa
